@@ -1,28 +1,12 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-
-const sqlConfig = {
-  user: process.env.DB_USER!,
-  password: process.env.DB_PASSWORD!,
-  database: process.env.DB_DATABASE!,
-  server: process.env.DB_SERVER!,
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
-  },
-  options: {
-    encrypt: true, // for azure
-    trustServerCertificate: true, // change to true for local dev / self-signed certs
-  },
-};
+import { getConnectionPool } from "../../../lib/db";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
   try {
-    const pool = await sql.connect(sqlConfig);
+    const pool = await getConnectionPool();
     // Asumimos que la primera columna es un ID o que hay una columna que indica el orden cronológico.
     // Usaremos "ORDER BY 1 ASC" como método genérico para ordenar por la primera columna si no conocemos la fecha exacta.
     // Idealmente, se debe ordenar por una columna como "Fecha_Hora" o "Id".
